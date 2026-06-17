@@ -1,0 +1,1 @@
+"""IRIP FastAPI application package."""

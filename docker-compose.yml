@@ -1,0 +1,38 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      JWT_SECRET_KEY: "local-dev-change-me"
+    volumes:
+      - irip-data:/app/data
+    ports:
+      - "8000:8000"
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    environment:
+      IRIP_API_BASE: "http://api:8000/api/v1"
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: irip
+      POSTGRES_USER: irip
+      POSTGRES_PASSWORD: irip-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docs/database_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+
+volumes:
+  irip-data:
+  postgres-data:
