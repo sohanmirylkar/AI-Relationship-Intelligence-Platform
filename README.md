@@ -127,6 +127,31 @@ ruff check .
 
 The tests cover meeting-to-CRM, token optimization, dashboard/graph availability, ingestion/RAG, research memo generation, and deliverable generation.
 
+## Demo Data And Evaluation
+
+Synthetic demo/evaluation data lives in `demo_data/`:
+
+- `meeting_transcripts/`: labelled investor/consultant meeting notes.
+- `expected_outputs/`: expected companies, people, actions, and required CRM fields.
+- `crm_seed.csv`: CRM rows with duplicate-like and missing-field examples.
+- `research_docs/`: source notes for RAG and research memo demos.
+- `prompt_tests.csv`: verbose prompts for token optimization.
+
+Run the evaluation harness:
+
+```bash
+python scripts/evaluate_demo_data.py
+```
+
+It writes `reports/demo_eval_report.json` and prints headline metrics:
+
+- meeting extraction average score
+- CRM required-field pass rate
+- RAG hit rate
+- average prompt-token reduction
+
+Use those metrics in the organization demo to show that IRIP is measurable: it is not just producing text, it is being tested for extraction quality, data-quality warnings, retrieval relevance, and AI-cost reduction.
+
 ## Project Layout
 
 ```text
@@ -138,6 +163,8 @@ backend/app/
 streamlit_app/  analyst console
 docs/           architecture and PostgreSQL schema
 seed_data/      demo transcript and research notes
+demo_data/      labelled synthetic evaluation pack
+scripts/        evaluation utilities
 tests/          unit/integration smoke tests
 ```
 

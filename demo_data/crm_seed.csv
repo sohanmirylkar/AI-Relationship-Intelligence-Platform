@@ -1,0 +1,7 @@
+ExternalSystemId,CompanyName,ContactName,MeetingDate,Summary,NextAction,Owner
+seed_northstar_maria,Northstar Public Pension,Maria Chen,2026-05-10,Prior intro call about private credit pacing,Send strategy overview,Analyst Demo User
+seed_northstar_maria_dup,Northstar Pension,Maria C. Chen,2026-05-11,Duplicate-like record for data quality demo,Review duplicate,Analyst Demo User
+seed_harborview_ethan,HarborView Consultants,Ethan Patel,2026-04-22,Consultant screen introduction,Share manager one-pager,Analyst Demo User
+seed_cedar_olivia,Cedar Ridge Endowment,Olivia Martins,2026-03-15,Initial endowment diligence note,Confirm reporting requirements,Analyst Demo User
+seed_missing_date,Great Lakes Insurance,Natalie Ross,,Discussed asset-based finance mandate,Send follow-up deck,Analyst Demo User
+seed_missing_summary,Westbridge Foundation,Daniel Kim,2026-06-01,,Schedule next call,Analyst Demo User

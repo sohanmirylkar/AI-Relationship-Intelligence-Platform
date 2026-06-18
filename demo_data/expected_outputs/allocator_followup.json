@@ -1,0 +1,14 @@
+{
+  "company": "Northstar Public Pension",
+  "people": ["Maria Chen", "Robert Hale"],
+  "action_items": [
+    "send residential mortgage finance deck and sample reporting package",
+    "schedule second call with Maria Chen and Robert Hale before the committee meeting",
+    "prepare reference list for similar public-plan investors"
+  ],
+  "required_crm_fields": {
+    "CompanyName": "Northstar Public Pension",
+    "MeetingDate": "2026-06-16"
+  },
+  "duplicate_expected": false
+}
