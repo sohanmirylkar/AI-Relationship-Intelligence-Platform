@@ -79,15 +79,54 @@ def optimize_prompt(req: PromptOptimizeRequest) -> PromptOptimizeResponse:
 
 def _compress_prompt(prompt: str) -> str:
     prompt = re.sub(r"\s+", " ", prompt).strip()
-    prompt = re.sub(r"\b(please|kindly|basically|really|very|just)\b", "", prompt, flags=re.I)
-    prompt = prompt.replace("I want you to", "")
+    prompt = re.sub(
+        r"\b(please|kindly|basically|really|very|just|carefully|entire|everything|anything else|"
+        r"useful|comprehensive|detailed|important)\b",
+        "",
+        prompt,
+        flags=re.I,
+    )
+    prompt = re.sub(r"\b(I want you to|Can you|make sure|do not miss)\b", "", prompt, flags=re.I)
+    task = _infer_task(prompt)
+    context = _essential_context(prompt)
     sections = [
-        "Role: internal investor-relations operations analyst.",
-        "Task: produce the requested structured output using only supplied context.",
-        "Rules: do not guess; return null for absent fields; cite source ids; score confidence.",
-        f"Context: {prompt}",
+        "Role: IR operations analyst.",
+        f"Task: {task}.",
+        "Rules: use supplied context only; return required schema; cite source ids; score confidence.",
+        f"Context focus: {context}.",
     ]
     return "\n".join(sections)
+
+
+def _infer_task(prompt: str) -> str:
+    lower = prompt.lower()
+    if "crm" in lower or "sync" in lower or "duplicat" in lower:
+        return "validate CRM fields, duplicates, and sync readiness"
+    if "research" in lower or "meeting" in lower and "company" in lower:
+        return "create a source-backed pre-meeting brief"
+    if "transcript" in lower or "action" in lower or "summary" in lower:
+        return "extract meeting summary, action items, entities, and CRM payload"
+    return "produce the requested investor-relations output"
+
+
+def _essential_context(prompt: str) -> str:
+    keywords = []
+    for term in re.findall(r"[A-Za-z][A-Za-z-]{3,}", prompt):
+        lowered = term.lower()
+        if lowered not in {
+            "this",
+            "that",
+            "then",
+            "with",
+            "from",
+            "before",
+            "after",
+            "should",
+            "would",
+        }:
+            keywords.append(term)
+    deduped = list(dict.fromkeys(keywords))
+    return ", ".join(deduped[:18]) or "provided analyst context"
 
 
 def _recommend_model(current_model: str, prompt: str) -> str:
