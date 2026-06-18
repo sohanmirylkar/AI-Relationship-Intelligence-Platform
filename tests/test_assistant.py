@@ -10,7 +10,7 @@ def auth_headers() -> dict[str, str]:
         "/api/v1/auth/token",
         data={
             "username": "analyst",
-            "password": "indago-demo",
+            "password": "irip-demo",
             "scope": "meeting:run research:run crm:sync",
         },
     )

@@ -5,5 +5,5 @@ consultant and Priya Shah supports research. Current interest is in shorter-dura
 finance strategies with transparent servicing and performance monitoring.
 
 Potential warm path:
-- HarborView may introduce Indago to a Midwest insurance client.
+- HarborView may introduce the firm to a Midwest insurance client.
 - The screen requires a short FAQ and one-page strategy overview.

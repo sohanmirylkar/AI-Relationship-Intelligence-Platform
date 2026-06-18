@@ -8,7 +8,7 @@ client = TestClient(app)
 def token() -> str:
     response = client.post(
         "/api/v1/auth/token",
-        data={"username": "analyst", "password": "indago-demo", "scope": "meeting:run research:run crm:sync"},
+        data={"username": "analyst", "password": "irip-demo", "scope": "meeting:run research:run crm:sync"},
     )
     assert response.status_code == 200
     return response.json()["access_token"]

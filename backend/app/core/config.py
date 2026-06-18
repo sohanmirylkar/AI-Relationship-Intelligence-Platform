@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Indago AI Relationship Intelligence Platform"
+    app_name: str = "AI Relationship Intelligence Platform"
     environment: str = "local"
     api_prefix: str = "/api/v1"
     data_dir: Path = Path("data")

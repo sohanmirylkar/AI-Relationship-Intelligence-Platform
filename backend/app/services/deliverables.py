@@ -76,7 +76,7 @@ Send the strategy overview, relevant case studies, and a short diligence checkli
 ## 2. Investor Pain Point
 Clarify allocation objective, risk controls, and operational constraints.
 
-## 3. Indago Angle
+## 3. Platform Angle
 Connect asset-based finance expertise to the investor's current diligence needs.
 
 ## 4. Proof Points

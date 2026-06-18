@@ -35,7 +35,7 @@ Open `http://localhost:8501`.
 Demo login:
 
 - Username: `analyst`
-- Password: `indago-demo`
+- Password: `irip-demo`
 
 API docs are available at `http://localhost:8000/docs`.
 

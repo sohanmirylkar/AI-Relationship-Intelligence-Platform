@@ -40,7 +40,7 @@ def login_panel():
         return
     st.sidebar.subheader("Sign in")
     username = st.sidebar.text_input("Username", value="analyst")
-    password = st.sidebar.text_input("Password", value="indago-demo", type="password")
+    password = st.sidebar.text_input("Password", value="irip-demo", type="password")
     if st.sidebar.button("Sign in", use_container_width=True):
         response = requests.post(
             f"{API_BASE}/auth/token",

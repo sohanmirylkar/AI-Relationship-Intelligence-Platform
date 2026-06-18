@@ -10,7 +10,7 @@ client = TestClient(app)
 def auth_headers() -> dict[str, str]:
     response = client.post(
         "/api/v1/auth/token",
-        data={"username": "analyst", "password": "indago-demo", "scope": "meeting:run research:run crm:sync"},
+        data={"username": "analyst", "password": "irip-demo", "scope": "meeting:run research:run crm:sync"},
     )
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 
