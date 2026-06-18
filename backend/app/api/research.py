@@ -9,4 +9,4 @@ router = APIRouter(prefix="/research", tags=["research"])
 
 @router.post("/company", response_model=ResearchCompanyResponse)
 async def research_company(req: ResearchCompanyRequest, _user=require_scopes("research:run")):
-    return generate_research_memo(req)
+    return await generate_research_memo(req)

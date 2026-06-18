@@ -86,7 +86,7 @@ class MeetingExtractRequest(BaseModel):
     company_hint: str | None = None
     attendees: list[str] = []
     interaction_date: str | None = None
-    provider: str = "local"
+    provider: str = "anthropic"
     model: str = "claude-haiku-4-5"
 
 
@@ -105,7 +105,7 @@ class ResearchCompanyRequest(BaseModel):
     company_name: str
     approved_sources: list[str] = []
     notes: str | None = None
-    provider: str = "local"
+    provider: str = "anthropic"
     model: str = "claude-sonnet-4-6"
 
 
@@ -161,7 +161,7 @@ class PromptOptimizeResponse(BaseModel):
 
 class CrmPreflightRequest(BaseModel):
     target_object: str = "Interaction"
-    mode: Literal["csv_export", "sdk_sync", "rest_api"] = "csv_export"
+    mode: Literal["csv_export", "supabase_sync"] = "csv_export"
     records: list[dict[str, Any]]
 
 
@@ -196,6 +196,8 @@ class DeliverableRequest(BaseModel):
     meeting_summary: str | None = None
     research_memo: str | None = None
     crm_payload: dict[str, Any] = {}
+    provider: str = "anthropic"
+    model: str = "claude-sonnet-4-6"
 
 
 class DeliverableResponse(BaseModel):

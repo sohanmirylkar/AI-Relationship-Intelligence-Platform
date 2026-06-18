@@ -12,7 +12,7 @@ It implements the report's seven-module platform shape:
 6. Relationship Graph
 7. Knowledge Base and RAG
 
-The app runs in a local deterministic demo mode, so it works without Anthropic, OpenAI, or DealCloud credentials. The code keeps provider and CRM adapter boundaries so production credentials can be added without rewriting the workflow.
+The app uses Anthropic and OpenAI when API keys are configured through environment variables. It keeps a local no-key fallback for tests and offline development. CRM export can be downloaded as CSV or synced to Supabase, an open-source Postgres-backed cloud platform.
 
 ## Quick Start
 
@@ -37,6 +37,28 @@ Demo login:
 - Password: `indago-demo`
 
 API docs are available at `http://localhost:8000/docs`.
+
+## API Keys And Cloud Sync
+
+Create a local `.env` from `.env.example` and add your keys:
+
+```bash
+ANTHROPIC_API_KEY=your_anthropic_key
+OPENAI_API_KEY=your_openai_key
+DEFAULT_LLM_PROVIDER=anthropic
+```
+
+Anthropic is the default provider for extraction, research, and deliverables. To use OpenAI for a request, pass `"provider": "openai"` and an OpenAI model in the API payload. The implementation calls the OpenAI Responses API and Anthropic Messages API directly through the provider adapter.
+
+For cloud CRM export, create the `crm_exports` table from `docs/database_schema.sql`, then set:
+
+```bash
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_CRM_TABLE=crm_exports
+```
+
+Keep these values in environment variables only. Do not commit real keys.
 
 ## Docker
 
@@ -77,25 +99,24 @@ The API uses a local JSON store by default for demo speed. `docs/database_schema
 | `POST` | `/api/v1/rag/query` | Ask source-backed questions over indexed chunks |
 | `POST` | `/api/v1/prompts/estimate` | Estimate token and model cost |
 | `POST` | `/api/v1/prompts/optimize` | Compress prompt and route to cheaper viable model |
-| `POST` | `/api/v1/crm/preflight` | Validate, dedupe, and map DealCloud-ready records |
-| `POST` | `/api/v1/crm/sync` | Export CSV or mock live SDK/REST sync |
+| `POST` | `/api/v1/crm/preflight` | Validate, dedupe, and map CRM-ready records |
+| `POST` | `/api/v1/crm/sync` | Export CSV or sync validated payloads to Supabase |
 | `GET` | `/api/v1/graph/all` | Get graph projection |
 | `POST` | `/api/v1/deliverables/generate` | Generate follow-up material |
 | `GET` | `/api/v1/dashboard/summary` | Get operating KPIs |
 
-## DealCloud Strategy
+## Supabase CRM Export Strategy
 
-The implementation defaults to CSV export because live API access and Indago's schema are unspecified. The CRM service still reflects the production flow:
+The implementation defaults to CSV export and supports live Supabase sync when credentials are configured. Supabase is open source, Postgres-backed, and exposes database tables through a REST API, making it a good replacement cloud layer for this prototype.
 
-1. Discover schema.
-2. Map logical fields to site-specific API names.
-3. Validate required fields and types.
-4. Preflight dedupe.
-5. Upsert with `ExternalSystemId`.
-6. Write sync log.
-7. Pull history for confirmation.
+1. Map logical CRM fields to the export payload.
+2. Validate required fields and types.
+3. Preflight dedupe.
+4. Export CSV or insert into `crm_exports`.
+5. Preserve `ExternalSystemId` for idempotent downstream processing.
+6. Write a local sync log with response status.
 
-Live SDK/REST sync is represented as a safe mock path until credentials and schema access are configured.
+If Supabase credentials are absent, the sync endpoint returns a clear `missing_supabase_credentials` status instead of pretending a live sync occurred.
 
 ## Testing
 
@@ -125,6 +146,6 @@ tests/          unit/integration smoke tests
 - Replace the JSON store with PostgreSQL models and migrations.
 - Store uploaded files in object storage instead of local disk.
 - Add live Anthropic/OpenAI clients behind `LlmRouter`.
-- Add live DealCloud schema discovery and OAuth2 token handling behind the CRM service.
+- Add Supabase RLS policies, storage buckets, and authenticated user-scoped CRM export views.
 - Use HTTPS-only deployment, secret rotation, row-level security, and audit-log export.
 - Do not scrape LinkedIn. Use approved analyst research, licensed data, or lawful user-provided exports.

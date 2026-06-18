@@ -5,6 +5,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
+import httpx
+
 from backend.app.core.config import get_settings
 from backend.app.models.schemas import (
     CrmPreflightRequest,
@@ -64,11 +66,14 @@ def sync(req: CrmSyncRequest) -> CrmSyncResponse:
     export_path = None
     status = "blocked_preflight" if not review.valid else "ready"
     if req.mode == "csv_export" and review.valid:
-        export_path = str(_write_csv(review.records, req.export_filename or f"dealcloud_export_{timestamp}.csv"))
+        export_path = str(
+            _write_csv(review.records, req.export_filename or f"supabase_crm_export_{timestamp}.csv")
+        )
         status = "exported"
-    elif req.mode in {"sdk_sync", "rest_api"} and review.valid:
-        status = "mock_synced"
-        sync_log["note"] = "Live DealCloud sync requires credentials and schema discovery."
+    elif req.mode == "supabase_sync" and review.valid:
+        supabase_result = _sync_supabase(review.records)
+        status = supabase_result["status"]
+        sync_log["supabase"] = supabase_result
     store.append("crm_sync_jobs", sync_log)
     return CrmSyncResponse(mode=req.mode, status=status, export_path=export_path, sync_log=sync_log)
 
@@ -127,7 +132,53 @@ def _recommended_action(valid: bool, warnings: list[dict[str, Any]], mode: str) 
         return "fix_required_fields_before_sync"
     if warnings:
         return "review_duplicate_then_sync"
-    return "export_csv" if mode == "csv_export" else "sync_to_dealcloud"
+    return "export_csv" if mode == "csv_export" else "sync_to_supabase"
+
+
+def _sync_supabase(records: list[dict[str, Any]]) -> dict[str, Any]:
+    settings = get_settings()
+    if not settings.supabase_url or not settings.supabase_service_role_key:
+        return {
+            "status": "missing_supabase_credentials",
+            "note": "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to enable live sync.",
+        }
+    url = (
+        f"{settings.supabase_url.rstrip('/')}/rest/v1/"
+        f"{settings.supabase_crm_table.strip('/')}"
+    )
+    payload = [
+        {
+            "external_system_id": record.get("ExternalSystemId"),
+            "target_object": "Interaction",
+            "payload": record,
+            "source": "irip",
+            "synced_at": datetime.utcnow().isoformat(),
+        }
+        for record in records
+    ]
+    with httpx.Client(timeout=30) as client:
+        response = client.post(
+            url,
+            headers={
+                "apikey": settings.supabase_service_role_key,
+                "Authorization": f"Bearer {settings.supabase_service_role_key}",
+                "Content-Type": "application/json",
+                "Prefer": "return=representation",
+            },
+            json=payload,
+        )
+    if response.status_code >= 400:
+        return {
+            "status": "supabase_error",
+            "status_code": response.status_code,
+            "detail": response.text[:1000],
+        }
+    return {
+        "status": "synced",
+        "status_code": response.status_code,
+        "table": settings.supabase_crm_table,
+        "records": response.json() if response.text else [],
+    }
 
 
 def _write_csv(records: list[dict[str, Any]], filename: str) -> Path:

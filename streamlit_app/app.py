@@ -167,7 +167,7 @@ elif page == "Investor Research":
             st.json(st.session_state["research_result"]["confidence"])
 
 elif page == "CRM Autopilot":
-    module_header("CRM Autopilot", "Validate, deduplicate, map, and export DealCloud-ready records.")
+    module_header("CRM Autopilot", "Validate, deduplicate, map, and export Supabase-ready records.")
     payload = st.session_state.get("meeting_result", {}).get("crm_payload", {})
     edited = st.data_editor(pd.DataFrame([payload or {
         "ExternalSystemId": "meet_2026_06_16_blackstone_01",
@@ -194,11 +194,15 @@ elif page == "CRM Autopilot":
                 json={"target_object": "Interaction", "mode": "csv_export", "records": edited.to_dict("records")},
             )
     with c3:
-        if st.button("Mock API sync", use_container_width=True):
+        if st.button("Sync to Supabase", use_container_width=True):
             st.session_state["crm_sync"] = api(
                 "POST",
                 "/crm/sync",
-                json={"target_object": "Interaction", "mode": "rest_api", "records": edited.to_dict("records")},
+                json={
+                    "target_object": "Interaction",
+                    "mode": "supabase_sync",
+                    "records": edited.to_dict("records"),
+                },
             )
     left, right = st.columns(2)
     with left:

@@ -5,6 +5,14 @@ services:
       dockerfile: Dockerfile.api
     environment:
       JWT_SECRET_KEY: "local-dev-change-me"
+      DEFAULT_LLM_PROVIDER: "${DEFAULT_LLM_PROVIDER:-anthropic}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.5}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      ANTHROPIC_VERSION: "${ANTHROPIC_VERSION:-2023-06-01}"
+      SUPABASE_URL: "${SUPABASE_URL:-}"
+      SUPABASE_SERVICE_ROLE_KEY: "${SUPABASE_SERVICE_ROLE_KEY:-}"
+      SUPABASE_CRM_TABLE: "${SUPABASE_CRM_TABLE:-crm_exports}"
     volumes:
       - irip-data:/app/data
     ports:
