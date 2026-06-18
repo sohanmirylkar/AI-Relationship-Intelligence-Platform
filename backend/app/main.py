@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api import (
+    assistant,
     auth,
     crm,
     dashboard,
@@ -33,6 +34,7 @@ app.add_middleware(
 
 for router in [
     auth.router,
+    assistant.router,
     ingest.router,
     meetings.router,
     research.router,
