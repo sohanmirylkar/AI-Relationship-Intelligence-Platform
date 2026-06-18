@@ -65,6 +65,49 @@ def module_header(title: str, caption: str):
         st.metric("Mode", "Human review")
 
 
+def assistant_panel(current_page: str):
+    st.sidebar.divider()
+    with st.sidebar.expander("IRIP Copilot", expanded=True):
+        if "assistant_messages" not in st.session_state:
+            st.session_state["assistant_messages"] = [
+                {
+                    "role": "assistant",
+                    "content": "Tell me what you are trying to do, and I’ll guide the next step.",
+                }
+            ]
+        for message in st.session_state["assistant_messages"][-4:]:
+            st.chat_message(message["role"]).markdown(message["content"])
+        prompt = st.chat_input("Ask about this workflow")
+        if prompt:
+            st.session_state["assistant_messages"].append({"role": "user", "content": prompt})
+            recent_state = {
+                "meeting_result": st.session_state.get("meeting_result"),
+                "crm_preflight": st.session_state.get("crm_preflight"),
+                "crm_sync": st.session_state.get("crm_sync"),
+                "research_result": st.session_state.get("research_result"),
+                "deliverable": st.session_state.get("deliverable"),
+                "prompt_result": st.session_state.get("prompt_result"),
+            }
+            payload = api(
+                "POST",
+                "/assistant/chat",
+                json={
+                    "message": prompt,
+                    "current_page": current_page,
+                    "recent_state": recent_state,
+                    "conversation": st.session_state["assistant_messages"][-8:],
+                },
+            )
+            answer = payload["answer_markdown"]
+            if payload.get("suggested_next_steps"):
+                steps = "\n".join(f"- {step}" for step in payload["suggested_next_steps"][:3])
+                answer = f"{answer}\n\n**Suggested next steps**\n{steps}"
+            st.session_state["assistant_messages"].append(
+                {"role": "assistant", "content": answer}
+            )
+            st.rerun()
+
+
 login_panel()
 
 st.sidebar.title("IRIP")
@@ -84,6 +127,8 @@ page = st.sidebar.radio(
 if st.sidebar.button("Sign out", use_container_width=True):
     st.session_state.clear()
     st.rerun()
+
+assistant_panel(page)
 
 
 if page == "Meeting Intelligence":

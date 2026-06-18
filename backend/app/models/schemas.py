@@ -17,6 +17,11 @@ class TokenResponse(BaseModel):
     scopes: list[str]
 
 
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
 class Company(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str
@@ -216,3 +221,21 @@ class DashboardSummary(BaseModel):
     research_turnaround_minutes: float
     graph_coverage: dict[str, int]
     module_activity: list[dict[str, Any]]
+
+
+class AssistantChatRequest(BaseModel):
+    message: str = Field(..., min_length=2)
+    current_page: str | None = None
+    recent_state: dict[str, Any] = {}
+    conversation: list[ChatMessage] = []
+    provider: str = "anthropic"
+    model: str = "claude-sonnet-4-6"
+
+
+class AssistantChatResponse(BaseModel):
+    answer_markdown: str
+    current_page: str | None = None
+    suggested_next_steps: list[str]
+    relevant_modules: list[str]
+    context_summary: dict[str, Any]
+    mode: str

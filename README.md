@@ -11,6 +11,7 @@ It implements the report's seven-module platform shape:
 5. Deliverables Generator
 6. Relationship Graph
 7. Knowledge Base and RAG
+8. IRIP Copilot workflow assistant
 
 The app uses Anthropic and OpenAI when API keys are configured through environment variables. It keeps a local no-key fallback for tests and offline development. CRM export can be downloaded as CSV or synced to Supabase, an open-source Postgres-backed cloud platform.
 
@@ -86,12 +87,14 @@ The API uses a local JSON store by default for demo speed. `docs/database_schema
 8. Open Deliverables Generator to create a follow-up email, FAQ, one-pager, or pitch outline.
 9. Open Knowledge Base, upload `seed_data/company_research_notes.md`, and ask a RAG question.
 10. Open Dashboard to show time, cost, data-quality, sync, and graph-coverage KPIs.
+11. Use IRIP Copilot in the sidebar during each step to ask what has been done, what should happen next, where to do it, and how to explain the result.
 
 ## API Surface
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `POST` | `/api/v1/auth/token` | OAuth2/JWT demo login |
+| `POST` | `/api/v1/assistant/chat` | Workflow-aware assistant guidance |
 | `POST` | `/api/v1/ingest/transcript` | Persist transcript uploads |
 | `POST` | `/api/v1/ingest/document` | Persist and chunk PDF/DOCX/XLSX/TXT/CSV uploads |
 | `POST` | `/api/v1/meetings/extract` | Extract summary, entities, action items, CRM payload |
@@ -126,6 +129,18 @@ ruff check .
 ```
 
 The tests cover meeting-to-CRM, token optimization, dashboard/graph availability, ingestion/RAG, research memo generation, and deliverable generation.
+
+## IRIP Copilot
+
+The Streamlit sidebar includes an always-available assistant called IRIP Copilot. It receives the current page, recent UI state, stored workflow activity, dashboard metrics, and module guidebook context. It can answer:
+
+- what the analyst has done so far
+- what the next best step is
+- where to perform that step in the app
+- what missing prerequisite is blocking progress
+- how to explain a result during a demo
+
+When `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is configured, the copilot uses the live provider adapter. Without keys, it still returns deterministic workflow guidance for tests and offline demos.
 
 ## Demo Data And Evaluation
 
