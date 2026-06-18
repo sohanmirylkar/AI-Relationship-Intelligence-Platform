@@ -1,0 +1,13 @@
+{
+  "company": "Cedar Ridge Endowment",
+  "people": ["Olivia Martins", "Sam Brooks"],
+  "action_items": [
+    "send short deck",
+    "send data fields list",
+    "offer dates for next call"
+  ],
+  "required_crm_fields": {
+    "CompanyName": "Cedar Ridge Endowment"
+  },
+  "duplicate_expected": false
+}

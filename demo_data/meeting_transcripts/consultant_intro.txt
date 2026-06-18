@@ -1,0 +1,13 @@
+Meeting date: 2026-06-20
+Target firm: HarborView Consultants
+Attendees: Ethan Patel, Senior Consultant; Priya Shah, Research Analyst; Analyst Demo User
+
+Ethan introduced HarborView's private markets research process and said several allocator clients
+are asking for asset-based finance ideas with shorter duration and strong collateral transparency.
+Priya asked for a short FAQ explaining servicing quality, borrower performance monitoring, and how
+Indago handles stress scenarios. Ethan mentioned that HarborView can introduce Indago to a Midwest
+insurance client if the FAQ is clear enough for an internal screen.
+
+Action: draft FAQ on servicing quality, performance monitoring, and stress cases.
+Action: send one-page overview for HarborView's internal manager screen.
+Action: ask Ethan for timing on the potential Midwest insurance introduction.

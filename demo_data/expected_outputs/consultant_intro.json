@@ -1,0 +1,14 @@
+{
+  "company": "HarborView Consultants",
+  "people": ["Ethan Patel", "Priya Shah"],
+  "action_items": [
+    "draft FAQ on servicing quality, performance monitoring, and stress cases",
+    "send one-page overview for HarborView's internal manager screen",
+    "ask Ethan for timing on the potential Midwest insurance introduction"
+  ],
+  "required_crm_fields": {
+    "CompanyName": "HarborView Consultants",
+    "MeetingDate": "2026-06-20"
+  },
+  "duplicate_expected": false
+}
