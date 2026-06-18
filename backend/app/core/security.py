@@ -23,13 +23,13 @@ DEMO_USERS = {
     "analyst": {
         "username": "analyst",
         "full_name": "Analyst Demo User",
-        "hashed_password": pwd_context.hash("indago-demo"),
+        "hashed_password": pwd_context.hash("irip-demo"),
         "scopes": ["meeting:run", "research:run", "crm:sync"],
     },
     "admin": {
         "username": "admin",
         "full_name": "IRIP Admin",
-        "hashed_password": pwd_context.hash("indago-admin"),
+        "hashed_password": pwd_context.hash("irip-admin"),
         "scopes": ["meeting:run", "research:run", "crm:sync", "admin:config"],
     },
 }

@@ -202,7 +202,7 @@ def _extract_company(text: str, hint: str | None) -> dict[str, Any]:
         name = hint.strip()
     else:
         candidates = re.findall(r"\b([A-Z][A-Za-z&.\-]+(?:\s+[A-Z][A-Za-z&.\-]+){0,3})\b", text)
-        stop = {"Action", "Meeting", "Summary", "Next", "Follow", "Indago", "We", "The"}
+        stop = {"Action", "Meeting", "Summary", "Next", "Follow", "IRIP", "We", "The"}
         filtered = [candidate for candidate in candidates if candidate.split()[0] not in stop]
         name = filtered[0] if filtered else "Unknown Target Firm"
     domain_match = re.search(r"\b(?:https?://)?(?:www\.)?([a-z0-9\-]+\.[a-z]{2,})\b", text, re.I)

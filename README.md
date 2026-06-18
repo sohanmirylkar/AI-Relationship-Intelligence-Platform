@@ -35,7 +35,7 @@ Open `http://localhost:8501`.
 Demo login:
 
 - Username: `analyst`
-- Password: `indago-demo`
+- Password: `irip-demo`
 
 API docs are available at `http://localhost:8000/docs`.
 
@@ -88,6 +88,15 @@ The API uses a local JSON store by default for demo speed. `docs/database_schema
 9. Open Knowledge Base, upload `seed_data/company_research_notes.md`, and ask a RAG question.
 10. Open Dashboard to show time, cost, data-quality, sync, and graph-coverage KPIs.
 11. Use IRIP Copilot in the sidebar during each step to ask what has been done, what should happen next, where to do it, and how to explain the result.
+
+## Business Paper
+
+The visual organization-submission paper is available at:
+
+- `docs/IRIP_Business_Paper.md`
+- `docs/IRIP_Business_Paper_Visual.html`
+
+Use the Markdown version for editing and the visual HTML version for browser review, printing, or PDF export.
 
 ## API Surface
 

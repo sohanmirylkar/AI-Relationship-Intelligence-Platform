@@ -5,7 +5,7 @@ Attendees: Ethan Patel, Senior Consultant; Priya Shah, Research Analyst; Analyst
 Ethan introduced HarborView's private markets research process and said several allocator clients
 are asking for asset-based finance ideas with shorter duration and strong collateral transparency.
 Priya asked for a short FAQ explaining servicing quality, borrower performance monitoring, and how
-Indago handles stress scenarios. Ethan mentioned that HarborView can introduce Indago to a Midwest
+the platform handles stress scenarios. Ethan mentioned that HarborView can introduce the firm to a Midwest
 insurance client if the FAQ is clear enough for an internal screen.
 
 Action: draft FAQ on servicing quality, performance monitoring, and stress cases.
