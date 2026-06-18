@@ -9,4 +9,4 @@ router = APIRouter(prefix="/deliverables", tags=["deliverables"])
 
 @router.post("/generate", response_model=DeliverableResponse)
 async def generate(req: DeliverableRequest, _user=require_scopes("meeting:run")):
-    return generate_deliverable(req)
+    return await generate_deliverable(req)

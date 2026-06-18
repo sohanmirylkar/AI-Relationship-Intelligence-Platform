@@ -124,8 +124,18 @@ CREATE TABLE crm_sync_job (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE crm_exports (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  external_system_id text UNIQUE NOT NULL,
+  target_object text NOT NULL DEFAULT 'Interaction',
+  payload jsonb NOT NULL,
+  source text NOT NULL DEFAULT 'irip',
+  synced_at timestamptz NOT NULL DEFAULT now()
+);
+
 ALTER TABLE interaction ENABLE ROW LEVEL SECURITY;
 ALTER TABLE document ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chunk ENABLE ROW LEVEL SECURITY;
 ALTER TABLE prompt_run ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crm_sync_job ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_exports ENABLE ROW LEVEL SECURITY;

@@ -5,19 +5,30 @@ from backend.app.models.schemas import (
     ResearchCompanyRequest,
     ResearchCompanyResponse,
 )
+from backend.app.services.llm_router import llm_router
 from backend.app.services.prompt_registry import RESEARCH_MEMO_PROMPT_VERSION, build_research_prompt
 from backend.app.services.rag import answer_query
 from backend.app.services.storage import store
 from backend.app.services.token_optimizer import estimate_tokens
 
 
-def generate_research_memo(req: ResearchCompanyRequest) -> ResearchCompanyResponse:
+async def generate_research_memo(req: ResearchCompanyRequest) -> ResearchCompanyResponse:
     start = perf_counter()
     rag_result = answer_query(RagQueryRequest(query=req.company_name, top_k=5))
     retrieved_context = "\n\n".join(chunk["content"] for chunk in rag_result.chunks)
     prompt = build_research_prompt(req.company_name, retrieved_context, req.notes)
     sources = rag_result.citations + [{"doc_title": source, "source_type": "approved"} for source in req.approved_sources]
-    memo = f"""## Firm Snapshot
+    llm_result = await llm_router.generate_text(
+        req.provider,
+        req.model,
+        prompt,
+        system=(
+            "Write a concise, source-grounded internal investor-relations memo in Markdown. "
+            "Separate facts, inferred opportunities, and open questions."
+        ),
+        max_tokens=1800,
+    )
+    memo = llm_result.get("text") or f"""## Firm Snapshot
 {req.company_name} is the target firm for this pre-meeting brief. Use the cited internal snippets and analyst-approved sources below before relying on public research.
 
 ## Relevant Decision Makers
@@ -47,7 +58,11 @@ Sources: {", ".join(str(s.get("doc_title") or s.get("chunk_id")) for s in source
         memo_markdown=memo,
         decision_makers=[{"name": "Allocator Contact", "role": "Primary diligence lead", "source": "analyst notes"}],
         sources=sources,
-        confidence={"source_coverage": 0.72 if sources else 0.35, "do_not_guess_compliance": 0.94},
+        confidence={
+            "source_coverage": 0.72 if sources else 0.35,
+            "do_not_guess_compliance": 0.94,
+            "live_llm": 1.0 if llm_result.get("mode", "").startswith("live") else 0.0,
+        },
         token_estimate={"input_tokens_est": estimate_tokens(prompt), "output_tokens_est": 1400, "prompt_version": RESEARCH_MEMO_PROMPT_VERSION},
     )
 

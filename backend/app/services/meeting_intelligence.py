@@ -30,16 +30,23 @@ async def extract_meeting(req: MeetingExtractRequest) -> MeetingExtractResponse:
     prompt = build_meeting_prompt(
         req.transcript_text, req.company_hint, req.attendees, req.interaction_date
     )
-    await llm_router.generate_structured(
+    llm_result = await llm_router.generate_structured(
         provider=req.provider,
         model=req.model,
         prompt=prompt,
         schema_name=MEETING_EXTRACTION_PROMPT_VERSION,
     )
-    company = _extract_company(req.transcript_text, req.company_hint)
-    people = _extract_people(req.transcript_text, req.attendees, company["name"])
-    action_items = _extract_action_items(req.transcript_text)
-    summary = _summarize(req.transcript_text, company["name"], action_items)
+    structured = llm_result.get("structured") or {}
+    company = _company_from_structured(structured) or _extract_company(
+        req.transcript_text, req.company_hint
+    )
+    people = _people_from_structured(structured, company["name"]) or _extract_people(
+        req.transcript_text, req.attendees, company["name"]
+    )
+    action_items = _actions_from_structured(structured) or _extract_action_items(req.transcript_text)
+    summary = structured.get("summary") or _summarize(
+        req.transcript_text, company["name"], action_items
+    )
     interaction_date = _parse_date(req.interaction_date)
     external_id = _external_id(company["name"], interaction_date)
 
@@ -97,12 +104,25 @@ async def extract_meeting(req: MeetingExtractRequest) -> MeetingExtractResponse:
         "NextAction": saved_actions[0]["description"] if saved_actions else None,
         "Owner": "Analyst Demo User",
     }
+    if isinstance(structured.get("crm_payload"), dict):
+        crm_payload.update(
+            {key: value for key, value in structured["crm_payload"].items() if value is not None}
+        )
+        crm_payload["ExternalSystemId"] = crm_payload.get("ExternalSystemId") or external_id
     confidence = {
         "company": company["confidence"],
         "contact": max([p["confidence"] for p in people], default=0.4),
         "next_action": 0.86 if saved_actions else 0.45,
         "source_traceability": 0.92,
+        "live_llm": 1.0 if llm_result.get("mode", "").startswith("live") else 0.0,
     }
+    if isinstance(structured.get("confidence"), dict):
+        confidence.update(
+            {
+                key: _float_or_default(value, confidence.get(key, 0.7))
+                for key, value in structured["confidence"].items()
+            }
+        )
     token_estimate = {
         "input_tokens_est": estimate_tokens(prompt),
         "output_tokens_est": 1200,
@@ -118,6 +138,63 @@ async def extract_meeting(req: MeetingExtractRequest) -> MeetingExtractResponse:
         prompt_version=MEETING_EXTRACTION_PROMPT_VERSION,
         interaction_id=interaction_saved["id"],
     )
+
+
+def _company_from_structured(payload: dict[str, Any]) -> dict[str, Any] | None:
+    companies = payload.get("entities", {}).get("companies", [])
+    if not companies:
+        return None
+    company = companies[0]
+    name = company.get("name") or company.get("CompanyName")
+    if not name:
+        return None
+    return {
+        "name": name,
+        "domain": company.get("domain"),
+        "confidence": _float_or_default(company.get("confidence"), 0.9),
+    }
+
+
+def _people_from_structured(payload: dict[str, Any], company_name: str) -> list[dict[str, Any]]:
+    people = payload.get("entities", {}).get("people", [])
+    normalized = []
+    for person in people:
+        full_name = person.get("full_name") or person.get("name") or person.get("ContactName")
+        if full_name:
+            normalized.append(
+                {
+                    "full_name": full_name,
+                    "title": person.get("title"),
+                    "email": person.get("email"),
+                    "company": person.get("company") or company_name,
+                    "confidence": _float_or_default(person.get("confidence"), 0.88),
+                }
+            )
+    return normalized
+
+
+def _actions_from_structured(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    actions = payload.get("action_items", [])
+    normalized = []
+    for action in actions:
+        if isinstance(action, str):
+            normalized.append({"description": action, "owner": None, "due_date": None})
+        elif action.get("description"):
+            normalized.append(
+                {
+                    "description": action["description"],
+                    "owner": action.get("owner"),
+                    "due_date": action.get("due_date"),
+                }
+            )
+    return normalized
+
+
+def _float_or_default(value: Any, default: float) -> float:
+    try:
+        return max(0.0, min(1.0, float(value)))
+    except (TypeError, ValueError):
+        return default
 
 
 def _extract_company(text: str, hint: str | None) -> dict[str, Any]:

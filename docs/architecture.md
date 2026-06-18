@@ -8,14 +8,15 @@ flowchart LR
   API --> Store["PostgreSQL target / local JSON demo store"]
   API --> Files["Object storage / local uploads"]
   API --> RAG["FAISS-style local retrieval"]
-  API --> LLM["Anthropic/OpenAI/local provider adapter"]
-  API --> CRM["DealCloud adapter"]
+  API --> LLM["Anthropic/OpenAI provider adapter"]
+  API --> CRM["Supabase/PostgREST CRM export"]
   Store --> Graph["NetworkX MultiDiGraph projection"]
 ```
 
-The repository intentionally runs without external credentials. In local mode the platform uses a JSON
-store and deterministic AI outputs. Production deployment should replace the store with PostgreSQL,
-object storage, real provider credentials, and live DealCloud schema discovery.
+The repository can run without external credentials for tests, but the application now prefers live
+Anthropic or OpenAI calls when `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is configured. Production
+deployment should replace the JSON demo store with PostgreSQL, object storage, and Supabase
+tables for CRM export/audit records.
 
 ## Modules
 
@@ -23,7 +24,7 @@ object storage, real provider credentials, and live DealCloud schema discovery.
 | --- | --- | --- |
 | Meeting Intelligence | `POST /api/v1/meetings/extract` | Summary, action items, entities, CRM payload |
 | Investor Research | `POST /api/v1/research/company` | Source-backed pre-meeting brief |
-| CRM Autopilot | `POST /api/v1/crm/preflight`, `POST /api/v1/crm/sync` | Validation, dedupe, CSV/API-ready sync |
+| CRM Autopilot | `POST /api/v1/crm/preflight`, `POST /api/v1/crm/sync` | Validation, dedupe, CSV/Supabase-ready sync |
 | Token Optimizer | `POST /api/v1/prompts/estimate`, `POST /api/v1/prompts/optimize` | Token, cost, routing, savings |
 | Deliverables Generator | `POST /api/v1/deliverables/generate` | Follow-up email, FAQ, one-pager, pitch outline |
 | Relationship Graph | `GET /api/v1/graph/all` | Company/contact/interaction edges |
@@ -36,7 +37,7 @@ object storage, real provider credentials, and live DealCloud schema discovery.
 - Demo scopes: `meeting:run`, `research:run`, `crm:sync`, `admin:config`.
 - No raw transcript bodies are written to application logs.
 - Uploaded source files are stored separately from derived summaries.
-- CRM sync defaults to CSV export; live sync requires explicit credentials.
+- CRM sync defaults to CSV export; live Supabase sync requires explicit credentials.
 - LinkedIn scraping is intentionally excluded. Use analyst notes, approved exports, or licensed data.
 
 ## Production Upgrade Path
@@ -44,6 +45,6 @@ object storage, real provider credentials, and live DealCloud schema discovery.
 1. Replace `JsonStore` with PostgreSQL models and Alembic migrations.
 2. Enable row-level security for transcripts, prompt runs, CRM payloads, and sensitive notes.
 3. Store secrets in the deployment platform, not in database rows.
-4. Add live DealCloud schema discovery, field mapping configuration, and OAuth2 token rotation.
+4. Add Supabase RLS policies, service-role rotation, and richer table-level field mapping.
 5. Add background workers for document parsing, embedding refresh, and sync retries.
 6. Add extraction evaluation fixtures and thresholds before using live CRM sync.

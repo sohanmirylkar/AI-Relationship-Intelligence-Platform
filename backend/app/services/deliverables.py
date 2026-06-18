@@ -1,7 +1,30 @@
 from backend.app.models.schemas import DeliverableRequest, DeliverableResponse
+from backend.app.services.llm_router import llm_router
 
 
-def generate_deliverable(req: DeliverableRequest) -> DeliverableResponse:
+async def generate_deliverable(req: DeliverableRequest) -> DeliverableResponse:
+    prompt = f"""Create a polished {req.deliverable_type} for an asset-management investor-relations team.
+
+Company: {req.company_name}
+Meeting summary: {req.meeting_summary or "not supplied"}
+Research memo: {req.research_memo or "not supplied"}
+CRM payload: {req.crm_payload}
+
+Use only the supplied information. If a fact is unavailable, phrase it as an analyst-review open item.
+Return Markdown only."""
+    llm_result = await llm_router.generate_text(
+        req.provider,
+        req.model,
+        prompt,
+        system="You prepare concise, professional investor-relations deliverables.",
+        max_tokens=1400,
+    )
+    if llm_result.get("text"):
+        return DeliverableResponse(
+            title=f"{req.company_name} {req.deliverable_type.replace('_', ' ').title()}",
+            content_markdown=llm_result["text"],
+            source_fields=[k for k, v in req.model_dump().items() if v],
+        )
     if req.deliverable_type == "follow_up_email":
         title = f"Follow-up email for {req.company_name}"
         content = f"""Subject: Follow-up from our discussion
