@@ -93,9 +93,10 @@ The API uses a local JSON store by default for demo speed. `docs/database_schema
 
 The visual organization-submission paper is available at:
 
+- `docs/IRIP_Business_Paper.md`
 - `docs/IRIP_Business_Paper_Visual.html`
 
-Open it in a browser to review the full business narrative, product diagrams, workflow charts, KPI visuals, roadmap, risk matrix, and presentation script.
+Use the Markdown version for editing and the visual HTML version for browser review, printing, or PDF export.
 
 ## API Surface
 
