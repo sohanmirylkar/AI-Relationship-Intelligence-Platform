@@ -89,6 +89,14 @@ The API uses a local JSON store by default for demo speed. `docs/database_schema
 10. Open Dashboard to show time, cost, data-quality, sync, and graph-coverage KPIs.
 11. Use IRIP Copilot in the sidebar during each step to ask what has been done, what should happen next, where to do it, and how to explain the result.
 
+## Business Paper
+
+The visual organization-submission paper is available at:
+
+- `docs/IRIP_Business_Paper_Visual.html`
+
+Open it in a browser to review the full business narrative, product diagrams, workflow charts, KPI visuals, roadmap, risk matrix, and presentation script.
+
 ## API Surface
 
 | Method | Endpoint | Purpose |
